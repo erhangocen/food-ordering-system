@@ -41,6 +41,43 @@ public class Order extends AggregateRoot<OrderId> {
         validateItemsPrice();
     }
 
+    public void pay(){
+        if(orderStatus != OrderStatus.PAID){
+            throw new OrderDomainException("");
+        }
+        orderStatus = OrderStatus.PAID;
+    }
+
+    public void approve(){
+        if(orderStatus != OrderStatus.PAID){
+            throw new OrderDomainException("");
+        }
+        orderStatus = OrderStatus.APPROVED;
+    }
+
+    public void initCancel(List<String> failureMessages) {
+        if (orderStatus != OrderStatus.APPROVED) {
+            throw new OrderDomainException("");
+        }
+        orderStatus = OrderStatus.CANCELLING;
+        updateFailureMessages(failureMessages);
+    }
+    public void cancel(List<String> failureMessages){
+        if(!(orderStatus == OrderStatus.CANCELLING || orderStatus == OrderStatus.PENDING)){
+            throw new OrderDomainException("");
+        }
+        orderStatus = OrderStatus.CANCELLED;
+        updateFailureMessages(failureMessages);
+    }
+    private void updateFailureMessages(List<String> failureMessages) { 
+        if(this.failureMessages != null && failureMessages != null){
+            this.failureMessages.addAll(failureMessages.stream().filter(message -> !message.isEmpty()).toList());
+        }
+        if(this.failureMessages == null){
+             this.failureMessages = failureMessages;
+        }
+    }
+
     private void validateItemsPrice() {
         var orderItemsTotal = items.stream().map(orderItem -> {
             validateItemPrice(orderItem);
