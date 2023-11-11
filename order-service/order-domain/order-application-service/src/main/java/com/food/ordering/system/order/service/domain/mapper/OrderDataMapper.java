@@ -57,6 +57,13 @@ public class OrderDataMapper {
         ).collect(Collectors.toList());
     }
 
+    public CreateOrderResponse orderToCreateOrderResponse(Order order){
+        return CreateOrderResponse.builder()
+                .orderTrackingId(order.getTrackingId().getValue())
+                .orderStatus(order.getOrderStatus())
+                .build();
+    }
+
     private StreetAddress orderAddressToStreetAddress(OrderAddress orderAddress) {
         return new StreetAddress(UUID.randomUUID(), orderAddress.getStreet(), orderAddress.getPostalCode(), orderAddress.getCity());
     }
